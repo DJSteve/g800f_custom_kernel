@@ -36,7 +36,7 @@
 
 #define SAFE_INT_VOLT(x)	(x + 25000)
 #define MAX_VOLT_ 1400000
-#define MIN_VOLT 800000
+#define MIN_VOLT 600000
 
 #define INT_TIMEOUT_VAL		10000
 

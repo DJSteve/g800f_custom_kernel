@@ -428,8 +428,9 @@ static int exynos_enter_core0_aftr(struct cpuidle_device *dev,
 	unsigned int cpuid = smp_processor_id();
 
 	local_irq_disable();
-	sec_debug_task_log_msg(cpuid, "aftr+");
 #ifdef CONFIG_SEC_PM_DEBUG
+	sec_debug_task_log_msg(cpuid, "aftr+");
+//#ifdef CONFIG_SEC_PM_DEBUG
 	if (log_en & ENABLE_AFTR)
 		pr_info("+++aftr\n");
 #endif

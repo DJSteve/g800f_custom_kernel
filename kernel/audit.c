@@ -386,7 +386,9 @@ static void audit_hold_skb(struct sk_buff *skb)
 static void audit_printk_skb(struct sk_buff *skb)
 {
 	struct nlmsghdr *nlh = nlmsg_hdr(skb);
+#ifdef CONFIG_SEC_AVC_LOG
 	char *data = NLMSG_DATA(nlh);
+#endif
 
 	if (nlh->nlmsg_type != AUDIT_EOE) {
 #ifdef CONFIG_SEC_AVC_LOG

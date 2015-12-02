@@ -37,8 +37,8 @@
 #define SET_DREX_TIMING
 
 #define SAFE_MIF_VOLT(x)	(x + 25000)
-#define MAX_VOLT_ 1300000
-#define MIN_VOLT 800000
+#define MAX_VOLT_ 1400000
+#define MIN_VOLT 600000
 
 #undef DVFS_BY_PLL_CHANGE
 
