@@ -15,3 +15,9 @@ config TOUCHSCREEN_CYPRESS_CYTTSP5
           Say Y here if you have a Cypress Gen5 touchscreen.
           If unsure, say N.
           To compile this driver as a module, choose M here.
+
+config TOUCHSCREEN_CYPRESS_CYTTSP_D2TW
+	depends on TOUCHSCREEN_CYPRESS_CYTTSP5
+	bool "Enable DT2W For TTSP5"
+        help
+          enable DT2W function for touchscreen

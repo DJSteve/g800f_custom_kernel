@@ -6163,7 +6163,11 @@ int cyttsp5_probe(const struct cyttsp5_bus_ops *ops, struct device *dev,
 			__func__, rc);
 	}
 #ifdef CYTTSP5_DT2W
+	#ifdef CONFIG_TOUCHSCREEN_CYPRESS_CYTTSP_D2TW
+	cd->md.dt2w_status = 1;
+	#else
 	cd->md.dt2w_status = 0;
+	#endif
 #endif
 	
 	return 0;
