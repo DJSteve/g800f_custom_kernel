@@ -569,13 +569,13 @@ static int __init set_volt_table(void)
 	}
 
 	if (samsung_rev() >= EXYNOS3470_REV_2_0) {
-		max_support_idx = L0;
+		max_support_idx = L1;
 		min_support_idx = L14;
 //		exynos3470_freq_table[L12].frequency = CPUFREQ_ENTRY_INVALID;
 //		exynos3470_freq_table[L13].frequency = CPUFREQ_ENTRY_INVALID;
-		//exynos3470_freq_table[L0].frequency = CPUFREQ_ENTRY_INVALID;
+		exynos3470_freq_table[L0].frequency = CPUFREQ_ENTRY_INVALID;
 	} else {
-		max_support_idx = L0;
+		max_support_idx = L1;
 		min_support_idx = L14;
 	}
 
@@ -664,8 +664,8 @@ int __init exynos3470_cpufreq_init(struct exynos_dvfs_info *info)
 
 	if (samsung_rev() >=  EXYNOS3470_REV_2_0) {
 		info->mpll_freq_khz = rate;
-		info->pm_lock_idx = L13;
-		info->pll_safe_idx = L13;
+		info->pm_lock_idx = L14;
+		info->pll_safe_idx = L14;
 		info->max_support_idx = max_support_idx;
 		info->min_support_idx = min_support_idx;
 		info->cpu_clk = cpu_clk;
@@ -680,8 +680,8 @@ int __init exynos3470_cpufreq_init(struct exynos_dvfs_info *info)
 		info->boot_cpu_max_qos = exynos3470_freq_table[L2].frequency;
 	} else {
 		info->mpll_freq_khz = rate;
-		info->pm_lock_idx = L11;
-		info->pll_safe_idx = L11;
+		info->pm_lock_idx = L12;
+		info->pll_safe_idx = L12;
 		info->max_support_idx = max_support_idx;
 		info->min_support_idx = min_support_idx;
 		info->cpu_clk = cpu_clk;
