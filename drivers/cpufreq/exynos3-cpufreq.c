@@ -743,12 +743,15 @@ static struct global_attr cpufreq_max_limit =
 		__ATTR(cpufreq_max_limit, S_IRUGO | S_IWUSR, show_max_freq, store_max_freq);
 static struct global_attr voltage_table =
 		__ATTR(voltage_table, S_IRUGO | S_IWUSR, show_volt_table, store_volt_table);
+static struct global_attr vdd_levels =
+                __ATTR(vdd_levels, S_IRUGO | S_IWUSR, show_volt_table, store_volt_table);
 
 static struct attribute *cpufreq_attributes[] = {
 	&freq_table.attr,
 	&min_freq.attr,
 	&max_freq.attr,
 	&volt_table.attr,
+	&vdd_levels.attr,
 	NULL
 };
 
@@ -976,12 +979,18 @@ static int __init exynos_cpufreq_init(void)
 		pr_err("%s: failed to create cpufreq_table sysfs interface\n", __func__);
 		goto err_cpufreq_table;
 	}
-	
+
 	ret = sysfs_create_file(cpufreq_global_kobject, &voltage_table.attr);
 	if (ret) {
 		pr_err("%s: failed to create voltage_table sysfs interface\n", __func__);
 		goto err_voltage_table;
 	}
+
+	ret = sysfs_create_file(cpufreq_global_kobject, &vdd_levels.attr);
+        if (ret) {
+                pr_err("%s: failed to create vdd_levels sysfs interface\n", __func__);
+                goto err_vdd_levels;
+        }
 
 	ret = sysfs_create_file(cpufreq_global_kobject, &cpufreq_min_limit.attr);
 	if (ret) {
@@ -1060,7 +1069,9 @@ err_cpufreq_max_limit_power:
 err_cpufreq_max_limit:
 	sysfs_remove_file(cpufreq_global_kobject, &cpufreq_min_limit.attr);
 err_cpufreq_min_limit:
-	sysfs_remove_file(cpufreq_global_kobject, &voltage_table.attr);
+	sysfs_remove_file(cpufreq_global_kobject, &vdd_levels.attr);
+err_vdd_levels:
+	err_voltage_table:sysfs_remove_file(cpufreq_global_kobject, &voltage_table.attr);
 err_voltage_table:
 	sysfs_remove_file(cpufreq_global_kobject, &cpufreq_table.attr);
 err_cpufreq_table:
