@@ -25,7 +25,7 @@
 #include <linux/platform_device.h>
 #include <linux/regulator/consumer.h>
 
-#define MIN_VOLT 800000
+#define MIN_VOLT 600000
 #define MAX_VOLT_ 1400000
 #define VOLT_DIV		12500
 
@@ -67,8 +67,8 @@ static struct pm_qos_request mif_min_qos;
 #include <mach/regs-pmu.h>
 #include <linux/workqueue.h>
 
-#define MALI_DVFS_STEPS 5
-#define MALI_DVFS_STEPS_ISP 4
+#define MALI_DVFS_STEPS 7
+#define MALI_DVFS_STEPS_ISP 7
 #define MALI_DVFS_WATING 10 /* msec */
 #define MALI_DVFS_DEFAULT_STEP 1
 #define MALI_DVFS_DEFAULT_STEP_ISP 3
@@ -110,69 +110,100 @@ mali_runtime_resume_table mali_runtime_resume = {160, 850000, 0};
 
 /* dvfs table updated on 130520 */
 mali_dvfs_table mali_dvfs[MALI_DVFS_STEPS] = {
-	/* step 0 */{160, 1000000,  850000,   0,  70
+	/* step 0 */{160, 1000000,  850000,   0,  60
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 0
 #endif
 	},
-	/* step 1 */{266, 1000000,  850000,  62,  90
+	/* step 1 */{266, 1000000,  850000,  60,  75
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 267000
 #endif
 	},
-	/* step 2 */{340, 1000000,  875000,  85,  90
+	/* step 2 */{340, 1000000,  875000,  75,  82
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 267000
 #endif
 	},
-	/* step 3 */{440, 1000000,  925000,  85,  90
+	/* step 3 */{440, 1000000,  925000,  82,  87
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 267000
 #endif
 	},
-	/* step 4 */{533, 1000000, 1000000,  95, 100
+	/* step 4 */{533, 1000000, 1000000,  87, 92
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 267000
 #endif
+	},
+        /* step 5 */{600, 1000000, 1125000,  92, 100
+#ifdef BUSFREQ_QOS_LOCK
+                /* mif_min_lock_value */
+                , 267000
+#endif
+//	},
+        /* step 5 *///{640, 1000000, 1175000,  92, 100
+//#ifdef BUSFREQ_QOS_LOCK
+                /* mif_min_lock_value */
+    //            , 267000
+//#endif
 	} };
 
 /* dvfs table updated on 140314 */
 mali_dvfs_table mali_dvfs_isp[MALI_DVFS_STEPS_ISP] = {
-	/* step 0 */{150, 1000000,  850000,   0,  70
+	/* step 0 */{160, 1000000,  850000,   0,  60
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 0
 #endif
 	},
-	/* step 1 */{225, 1000000,  850000,  62,  90
+	/* step 1 */{266, 1000000,  850000,  60,  70
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 267000
 #endif
 	},
-	/* step 2 */{300, 1000000,  875000,  85,  90
+	/* step 2 */{350, 1000000,  875000,  70,  78
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 267000
 #endif
 	},
-	/* step 3 */{450, 1000000,  925000,  95, 100
+	/* step 3 */{440, 1000000,  925000,  78, 85
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 267000
 #endif
+	},
+        /* step 3 */{533, 1000000,  1000000,  85, 95
+#ifdef BUSFREQ_QOS_LOCK
+                /* mif_min_lock_value */
+                , 267000
+#endif
+	},
+        /* step 3 */{600, 1000000,  1125000,  95, 100
+#ifdef BUSFREQ_QOS_LOCK
+                /* mif_min_lock_value */
+                , 267000
+#endif
+//        },
+        /* step 3 *///{640, 1000000,  1175000,  95, 100
+//#ifdef BUSFREQ_QOS_LOCK
+                /* mif_min_lock_value */
+  //              , 267000
+//#endif
+
 	} };
 
 /* Exynos3470 */
-int mali_gpu_clk = 160;
-int mali_gpu_vol = 850000;
+int mali_gpu_clk = 533;
+int mali_gpu_vol = 1050000;
 unsigned int mali_vpll_clk = 900;
-char *mali_freq_table = "533 440 340 266 160";
+char *mali_freq_table = "600 533 440 340 266 160";
 #define EXTXTALCLK_NAME  "ext_xtal"
 #define VPLLSRCCLK_NAME  "vpll_src"
 #define FOUTVPLLCLK_NAME "fout_vpll"

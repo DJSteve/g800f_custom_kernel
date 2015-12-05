@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2013 Samsung Electronics Co., Ltd.
  *		http://www.samsung.com
@@ -164,7 +165,7 @@ static struct dw_mci_board smdk4270_dwmci0_pdata __initdata = {
 				  DW_MMC_QUIRK_RETRY_CRC_ERROR,
 	.bus_hz			= 200 * 1000 * 1000,
 	.caps			= MMC_CAP_CMD23 | MMC_CAP_8_BIT_DATA |
-				  MMC_CAP_UHS_DDR50 | MMC_CAP_1_8V_DDR |
+				  MMC_CAP_UHS_DDR50 | MMC_CAP_UHS_SDR104 | MMC_CAP_1_8V_DDR |
 				  MMC_CAP_ERASE,
 	.caps2			= MMC_CAP2_BROKEN_VOLTAGE | MMC_CAP2_CACHE_CTRL |
 				  MMC_CAP2_POWEROFF_NOTIFY | MMC_CAP2_NO_SLEEP_CMD |
@@ -377,7 +378,10 @@ static struct dw_mci_board smdk4270_dwmci2_pdata __initdata = {
 	.caps			= MMC_CAP_4_BIT_DATA |
 				  MMC_CAP_SD_HIGHSPEED |
 				  MMC_CAP_MMC_HIGHSPEED |
+				  MMC_CAP_UHS_SDR25 |
 				  MMC_CAP_UHS_SDR50 |
+				  MMC_CAP_UHS_SDR104 |
+				  MMC_CAP_ERASE |
 				  MMC_CAP_CMD23,
 	.fifo_depth		= 0x80,
 	.detect_delay_ms	= 200,
