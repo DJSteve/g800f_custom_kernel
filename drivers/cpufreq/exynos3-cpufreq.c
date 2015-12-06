@@ -571,7 +571,110 @@ static ssize_t show_freq_table(struct kobject *kobj,
 	count += snprintf(&buf[count], 2, "\n");
 	return count;
 }
+/*
+static size_t show_UV_uV_table(struct cpufreq_policy *policy, char *buf) {
+	int i, len = 0;
+	if (buf)
+	{
+		for (i = exynos_info->max_support_idx; i<=exynos_info->min_support_idx; i++)
+		{
+			if(exynos_info->freq_table[i].frequency==CPUFREQ_ENTRY_INVALID) continue;
+			len += sprintf(buf + len, "%d %d \n", 
+				exynos_info->freq_table[i].frequency/1000,
+				exynos_info->volt_table[i]);
+		}
+	}
+	return len;
+}
 
+static ssize_t show_UV_mV_table(struct cpufreq_policy *policy, char *buf) {
+	int i, len = 0;
+	if (buf)
+	{
+		for (i = exynos_info->max_support_idx; i<=exynos_info->min_support_idx; i++)
+		{
+			if(exynos_info->freq_table[i].frequency==CPUFREQ_ENTRY_INVALID) continue;
+			len += sprintf(buf + len, "%dmhz: %d mV\n", 
+				exynos_info->freq_table[i].frequency/1000,
+				((exynos_info->volt_table[i] % 1000) + exynos_info->volt_table[i])/1000);
+		}
+	}
+	return len;
+}
+
+static ssize_t store_UV_uV_table(struct cpufreq_policy *policy, 
+				 const char *buf, size_t count) {
+
+	int i, tokens, top_offset, invalid_offset;
+	int t[CPUFREQ_LEVEL_END];
+
+	top_offset = 0;
+	invalid_offset = 0;
+
+	if((tokens = read_into((int*)&t, CPUFREQ_LEVEL_END, buf, count)) < 0)
+		return -EINVAL;
+
+	if(tokens != CPUFREQ_LEVEL_END) {
+		top_offset = CPUFREQ_LEVEL_END - tokens;
+	}
+
+	for (i = 0 + top_offset; i < CPUFREQ_LEVEL_END; i++) {
+		if (t[i] > CPU_UV_MV_MAX) 
+			t[i] = CPU_UV_MV_MAX;
+		else if (t[i] < CPU_UV_MV_MIN) 
+			t[i] = CPU_UV_MV_MIN;
+
+		while(exynos_info->freq_table[i+invalid_offset].frequency==CPUFREQ_ENTRY_INVALID)
+			++invalid_offset;
+
+		exynos_info->volt_table[i+invalid_offset] = t[i];
+	}
+
+	return count;
+}
+
+static ssize_t store_UV_mV_table(struct cpufreq_policy *policy, 
+				 const char *buf, size_t count) {
+
+	int i, tokens, top_offset, invalid_offset;
+	int t[CPUFREQ_LEVEL_END];
+
+	top_offset = 0;
+	invalid_offset = 0;
+
+	if((tokens = read_into((int*)&t, CPUFREQ_LEVEL_END, buf, count)) < 0)
+		return -EINVAL;
+
+	if(tokens != CPUFREQ_LEVEL_END) {
+		top_offset = CPUFREQ_LEVEL_END - tokens;
+	}
+
+	for (i = 0 + top_offset; i < CPUFREQ_LEVEL_END; i++) {
+		int rest = 0;
+
+		t[i] *= 1000;
+
+		if((rest = t[i] % 12500) != 0){
+			if(rest > 6250)
+				t[i] += rest;
+			else
+				t[i] -= rest;
+		}
+
+		if (t[i] > CPU_UV_MV_MAX) 
+			t[i] = CPU_UV_MV_MAX;
+		else if (t[i] < CPU_UV_MV_MIN) 
+			t[i] = CPU_UV_MV_MIN;
+
+		while(exynos_info->freq_table[i+invalid_offset].frequency==CPUFREQ_ENTRY_INVALID)
+			++invalid_offset;
+
+		exynos_info->volt_table[i+invalid_offset] = t[i];
+	}
+
+	return count;
+}
+*/
 static ssize_t show_volt_table(struct kobject *kobj,
 			     struct attribute *attr, char *buf)
 {
@@ -589,14 +692,14 @@ static ssize_t show_volt_table(struct kobject *kobj,
 
 	for (i = 0; freq_table[i].frequency != CPUFREQ_TABLE_END; i++) {
 		if (freq_table[i].frequency != CPUFREQ_ENTRY_INVALID)
-			count += snprintf(&buf[count], pr_len, "%d %d ",
+			count += snprintf(&buf[count], pr_len, "%d %d\n",
 					freq_table[i].frequency, exynos_info->volt_table[i]); /* in microvolts */
 	}
 	
-	count += snprintf(&buf[count], pr_len, "%d %d ",
-					-42, 0); /* magic */
+//	count += snprintf(&buf[count], pr_len, "%d %d",
+//					-42, 0); /* magic */
 
-	count += snprintf(&buf[count], 2, "\n");
+//	count += snprintf(&buf[count], 2, "\n");
 	return count;
 }
 
@@ -732,6 +835,8 @@ static ssize_t store_max_freq(struct kobject *kobj, struct attribute *attr,
 
 define_one_global_ro(freq_table);
 define_one_global_rw(volt_table);
+//define_one_global_ro(UV_mV_table);
+//define_one_global_ro(UV_uV_table);
 define_one_global_rw(min_freq);
 define_one_global_rw(max_freq);
 
@@ -743,15 +848,19 @@ static struct global_attr cpufreq_max_limit =
 		__ATTR(cpufreq_max_limit, S_IRUGO | S_IWUSR, show_max_freq, store_max_freq);
 static struct global_attr voltage_table =
 		__ATTR(voltage_table, S_IRUGO | S_IWUSR, show_volt_table, store_volt_table);
-/*static struct global_attr vdd_levels =
-                __ATTR(vdd_levels, S_IRUGO | S_IWUSR, show_volt_table, store_volt_table);
-*/
+//static struct global_attr mV_table =
+//                __ATTR(UV_mV_table, S_IRUGO | S_IWUSR, show_UV_mV_table, store_UV_mV_table);
+//static struct global_attr UV_uV_table =
+//                __ATTR(UV_uV_table, S_IRUGO | S_IWUSR, show_UV_uV_table, store_UV_uV_table);
+
 static struct attribute *cpufreq_attributes[] = {
 	&freq_table.attr,
 	&min_freq.attr,
 	&max_freq.attr,
 	&volt_table.attr,
 //	&vdd_levels.attr,
+//	&UV_mV_table.attr,
+//	&UV_uV_table.attr,
 	NULL
 };
 
