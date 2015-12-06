@@ -26,6 +26,8 @@
 
 
 #define	CPUFREQ_LEVEL_END	(L14 + 1)
+#define CPU_UV_MV_MAX 1400000
+#define CPU_UV_MV_MIN 600000
 
 int arm_lock;
 static int max_support_idx;
@@ -741,8 +743,8 @@ ssize_t show_UV_mV_table(struct cpufreq_policy *policy, char *buf) {
 	}
 	return len;
 }
-/*
-static ssize_t store_UV_uV_table(struct cpufreq_policy *policy, 
+
+ssize_t store_UV_uV_table(struct cpufreq_policy *policy, 
 				 const char *buf, size_t count) {
 
 	int i, tokens, top_offset, invalid_offset;
@@ -764,16 +766,16 @@ static ssize_t store_UV_uV_table(struct cpufreq_policy *policy,
 		else if (t[i] < CPU_UV_MV_MIN) 
 			t[i] = CPU_UV_MV_MIN;
 
-		while(exynos_info->freq_table[i+invalid_offset].frequency==CPUFREQ_ENTRY_INVALID)
+		while(exynos3470_freq_table[i+invalid_offset].frequency==CPUFREQ_ENTRY_INVALID)
 			++invalid_offset;
 
-		exynos_info->volt_table[i+invalid_offset] = t[i];
+		exynos3470_volt_table[i+invalid_offset] = t[i];
 	}
 
 	return count;
 }
 
-static ssize_t store_UV_mV_table(struct cpufreq_policy *policy, 
+ssize_t store_UV_mV_table(struct cpufreq_policy *policy, 
 				 const char *buf, size_t count) {
 
 	int i, tokens, top_offset, invalid_offset;
@@ -806,13 +808,13 @@ static ssize_t store_UV_mV_table(struct cpufreq_policy *policy,
 		else if (t[i] < CPU_UV_MV_MIN) 
 			t[i] = CPU_UV_MV_MIN;
 
-		while(exynos_info->freq_table[i+invalid_offset].frequency==CPUFREQ_ENTRY_INVALID)
+		while(exynos3470_freq_table[i+invalid_offset].frequency==CPUFREQ_ENTRY_INVALID)
 			++invalid_offset;
 
-		exynos_info->volt_table[i+invalid_offset] = t[i];
+		exynos3470_volt_table[i+invalid_offset] = t[i];
 	}
 
 	return count;
 }
-*/
+
 
