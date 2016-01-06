@@ -26,7 +26,7 @@
 
 
 #define	CPUFREQ_LEVEL_END	(L14 + 1)
-#define CPU_UV_MV_MAX 1400000
+#define CPU_UV_MV_MAX 1500000
 #define CPU_UV_MV_MIN 600000
 
 int arm_lock;
@@ -49,19 +49,22 @@ static unsigned int (*clkdiv_cpu1_3470)[2];
 static unsigned int *exynos3470_apll_pms_table;
 
 static struct cpufreq_frequency_table exynos3470_freq_table_rev[] = {
-	{L0, 1400 * 1000},
-	{L1, 1300 * 1000},
-	{L2, 1200 * 1000},
-	{L3, 1100 * 1000},
-	{L4, 1000 * 1000},
-	{L5,  900 * 1000},
-	{L6,  800 * 1000},
-	{L7,  700 * 1000},
-	{L8,  600 * 1000},
-	{L9,  500 * 1000},
-	{L10, 400 * 1000},
-	{L11, 300 * 1000},
-	{L12, 200 * 1000},
+        {L0, 1700 * 1000},
+        {L1, 1600 * 1000},
+        {L2, 1500 * 1000},
+	{L3, 1400 * 1000},
+	{L4, 1300 * 1000},
+	{L5, 1200 * 1000},
+	{L6, 1100 * 1000},
+	{L7, 1000 * 1000},
+	{L8,  900 * 1000},
+	{L9,  800 * 1000},
+	{L10,  700 * 1000},
+	{L11,  600 * 1000},
+	{L12,  500 * 1000},
+	{L13, 400 * 1000},
+	{L14, 300 * 1000},
+	{L15, 200 * 1000},
 	{0, CPUFREQ_TABLE_END},
 };
 
@@ -138,8 +141,12 @@ static unsigned int clkdiv_cpu0_3470_rev2[CPUFREQ_LEVEL_END][6] = {
 	 * { DIVCORE, DIVCOREM,
 	 *		DIVATB, DIVPCLK_DBG, DIVAPLL, DIVCORE2 }
 	 */
+
         /* ARM L0: 1600Mhz */
         { 0, 3, 6, 7, 7, 0 },
+
+        /* ARM L0: 1600Mhz */
+//      { 0, 3, 6, 7, 7, 0 },
 
 	/* ARM L0: 1500Mhz */
 	{ 0, 3, 6, 7, 7, 0 },
@@ -234,6 +241,7 @@ static unsigned int clkdiv_cpu1_3470_rev2[CPUFREQ_LEVEL_END][2] = {
 	 *Clock divider value for following
 	 * { DIVCOPY, DIVHPM }
 	 */
+
 	/* ARM L0: 1600MHz */
         { 6, 0 },
 
@@ -324,7 +332,7 @@ static unsigned int exynos3470_apll_pms_table_rev[CPUFREQ_LEVEL_END] = {
 
 static unsigned int exynos3470_apll_pms_table_rev2[CPUFREQ_LEVEL_END] = {
         /* APLL FOUT L0: 1600MHz */
-        ((250<<16)|(4<<8)|(0x0)),
+        ((200<<16)|(3<<8)|(0x0)),
 
 	/* APLL FOUT L0: 1500MHz */
 	((250<<16)|(4<<8)|(0x0)),
@@ -573,16 +581,16 @@ static int __init set_volt_table(void)
 		exynos3470_default_volt_table[i] = exynos3470_volt_table[i];
 	}
 
-	if (samsung_rev() >= EXYNOS3470_REV_2_0) {
-		max_support_idx = L1;
+//	if (samsung_rev() >= EXYNOS3470_REV_2_0) {
+		max_support_idx = L0;
 		min_support_idx = L14;
 //		exynos3470_freq_table[L12].frequency = CPUFREQ_ENTRY_INVALID;
 //		exynos3470_freq_table[L13].frequency = CPUFREQ_ENTRY_INVALID;
-		exynos3470_freq_table[L0].frequency = CPUFREQ_ENTRY_INVALID;
-	} else {
-		max_support_idx = L1;
-		min_support_idx = L14;
-	}
+//		exynos3470_freq_table[L0].frequency = CPUFREQ_ENTRY_INVALID;
+//	} else {
+//		max_support_idx = L0;
+//		min_support_idx = L14;
+//	}
 
 	return 0;
 }
@@ -602,17 +610,17 @@ int __init exynos3470_cpufreq_init(struct exynos_dvfs_info *info)
 	unsigned int tmp;
 	unsigned long rate;
 
-	if (samsung_rev() >= EXYNOS3470_REV_2_0) {
+//	if (samsung_rev() >= EXYNOS3470_REV_2_0) {
 		exynos3470_freq_table = exynos3470_freq_table_rev2;
 		clkdiv_cpu0_3470 = clkdiv_cpu0_3470_rev2;
 		clkdiv_cpu1_3470 = clkdiv_cpu1_3470_rev2;
 		exynos3470_apll_pms_table = exynos3470_apll_pms_table_rev2;
-	} else {
-		exynos3470_freq_table = exynos3470_freq_table_rev;
-		clkdiv_cpu0_3470 = clkdiv_cpu0_3470_rev;
-		clkdiv_cpu1_3470 = clkdiv_cpu1_3470_rev;
-		exynos3470_apll_pms_table = exynos3470_apll_pms_table_rev;
-	}
+//	} else {
+//		exynos3470_freq_table = exynos3470_freq_table_rev;
+//		clkdiv_cpu0_3470 = clkdiv_cpu0_3470_rev;
+//		clkdiv_cpu1_3470 = clkdiv_cpu1_3470_rev;
+//		exynos3470_apll_pms_table = exynos3470_apll_pms_table_rev;
+//	}
 
 	set_volt_table();
 
@@ -669,8 +677,8 @@ int __init exynos3470_cpufreq_init(struct exynos_dvfs_info *info)
 
 	if (samsung_rev() >=  EXYNOS3470_REV_2_0) {
 		info->mpll_freq_khz = rate;
-		info->pm_lock_idx = L14;
-		info->pll_safe_idx = L14;
+		info->pm_lock_idx = L11;
+		info->pll_safe_idx = L11;
 		info->max_support_idx = max_support_idx;
 		info->min_support_idx = min_support_idx;
 		info->cpu_clk = cpu_clk;
@@ -685,8 +693,8 @@ int __init exynos3470_cpufreq_init(struct exynos_dvfs_info *info)
 		info->boot_cpu_max_qos = exynos3470_freq_table[L2].frequency;
 	} else {
 		info->mpll_freq_khz = rate;
-		info->pm_lock_idx = L12;
-		info->pll_safe_idx = L12;
+		info->pm_lock_idx = L8;
+		info->pll_safe_idx = L8;
 		info->max_support_idx = max_support_idx;
 		info->min_support_idx = min_support_idx;
 		info->cpu_clk = cpu_clk;
@@ -696,6 +704,8 @@ int __init exynos3470_cpufreq_init(struct exynos_dvfs_info *info)
 		info->set_freq = exynos3470_set_frequency;
 		info->need_apll_change = exynos3470_pms_change;
 		info->bus_table = exynos3470_bus_table;
+                info->boot_cpu_min_qos = exynos3470_freq_table[L2].frequency;
+                info->boot_cpu_max_qos = exynos3470_freq_table[L2].frequency;
 	}
 
 return 0;
