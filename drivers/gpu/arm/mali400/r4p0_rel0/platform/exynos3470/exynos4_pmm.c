@@ -116,41 +116,41 @@ mali_dvfs_table mali_dvfs[MALI_DVFS_STEPS] = {
 		, 0
 #endif
 	},
-	/* step 1 */{266, 1000000,  850000,  60,  75
+	/* step 1 */{266, 1000000,  850000,  60,  70
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 267000
 #endif
 	},
-	/* step 2 */{340, 1000000,  875000,  75,  82
+	/* step 2 */{340, 1000000,  875000,  70,  80
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 267000
 #endif
 	},
-	/* step 3 */{440, 1000000,  925000,  82,  87
+	/* step 3 */{440, 1000000,  925000,  80,  85
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 267000
 #endif
 	},
-	/* step 4 */{533, 1000000, 1000000,  87, 92
+	/* step 4 */{533, 1000000, 1000000,  85, 90
 #ifdef BUSFREQ_QOS_LOCK
 		/* mif_min_lock_value */
 		, 267000
 #endif
 	},
-        /* step 5 */{600, 1000000, 1125000,  92, 100
+        /* step 5 */{600, 1000000, 1125000,  90, 95
 #ifdef BUSFREQ_QOS_LOCK
                 /* mif_min_lock_value */
                 , 267000
 #endif
-//	},
-        /* step 5 *///{640, 1000000, 1175000,  92, 100
-//#ifdef BUSFREQ_QOS_LOCK
+	},
+        /* step 6 */{640, 1000000, 1200000,  95, 100
+#ifdef BUSFREQ_QOS_LOCK
                 /* mif_min_lock_value */
-    //            , 267000
-//#endif
+	        , 267000
+#endif
 	} };
 
 /* dvfs table updated on 140314 */
@@ -179,31 +179,31 @@ mali_dvfs_table mali_dvfs_isp[MALI_DVFS_STEPS_ISP] = {
 		, 267000
 #endif
 	},
-        /* step 3 */{533, 1000000,  1000000,  85, 95
+        /* step 3 */{533, 1000000,  1000000,  85, 90
 #ifdef BUSFREQ_QOS_LOCK
                 /* mif_min_lock_value */
                 , 267000
 #endif
 	},
-        /* step 3 */{600, 1000000,  1125000,  95, 100
+        /* step 3 */{600, 1000000,  1125000,  90, 95
 #ifdef BUSFREQ_QOS_LOCK
                 /* mif_min_lock_value */
                 , 267000
 #endif
-//        },
-        /* step 3 *///{640, 1000000,  1175000,  95, 100
-//#ifdef BUSFREQ_QOS_LOCK
+        },
+        /* step 3 */{640, 1000000,  1200000,  95, 100
+#ifdef BUSFREQ_QOS_LOCK
                 /* mif_min_lock_value */
-  //              , 267000
-//#endif
+                , 267000
+#endif
 
 	} };
 
 /* Exynos3470 */
-int mali_gpu_clk = 533;
-int mali_gpu_vol = 1050000;
+int mali_gpu_clk = 640;
+int mali_gpu_vol = 1175000;
 unsigned int mali_vpll_clk = 900;
-char *mali_freq_table = "600 533 440 340 266 160";
+char *mali_freq_table = "640 600 533 440 340 266 160";
 #define EXTXTALCLK_NAME  "ext_xtal"
 #define VPLLSRCCLK_NAME  "vpll_src"
 #define FOUTVPLLCLK_NAME "fout_vpll"

@@ -97,21 +97,24 @@ typedef struct mali_runtime_resumeTag{
 mali_runtime_resume_table mali_runtime_resume = {266, 900000, 1};
 
 mali_dvfs_table mali_dvfs[MALI_DVFS_STEPS]={
-	/*step 0*/{160  ,1000000, 875000, 0, 70},
-	/*step 1*/{266  ,1000000, 900000, 62, 90},
-	/*step 2*/{350  ,1000000, 950000, 85, 90},
-	/*step 3*/{440  ,1000000, 1025000, 85, 90},
-	/*step 4*/{533  ,1000000, 1075000, 85, 100} };
+	/*step 0*/{160  ,1000000, 875000, 0, 62},
+	/*step 1*/{266  ,1000000, 900000, 62, 72},
+	/*step 2*/{350  ,1000000, 950000, 72, 80},
+	/*step 3*/{440  ,1000000, 1025000, 80, 90},
+	/*step 4*/{533  ,1000000, 1075000, 90, 95},
+	/*step 5*/{640  ,1000000, 1125000, 95, 100} 
+};
 #else
 mali_runtime_resume_table mali_runtime_resume = {266, 900000, 1};
 
 /*dvfs table updated on 130520*/
 mali_dvfs_table mali_dvfs[MALI_DVFS_STEPS]={
-	/*step 0*/{160, 1000000, 875000, 0, 70},
-	/*step 1*/{266, 1000000, 900000, 62, 90},
-	/*step 2*/{350, 1000000, 950000, 85, 90},
-	/*step 3*/{440, 1000000, 1025000, 85, 90},
-	/*step 4*/{533, 1000000, 1075000, 85, 100} };
+        /*step 0*/{160  ,1000000, 875000, 0, 62},
+        /*step 1*/{266  ,1000000, 900000, 62, 72},
+        /*step 2*/{350  ,1000000, 950000, 72, 80},
+        /*step 3*/{440  ,1000000, 1025000, 80, 90},
+        /*step 4*/{533  ,1000000, 1075000, 90, 95},
+        /*step 5*/{640  ,1000000, 1125000, 95, 100}
 #endif
 
 #define EXTXTALCLK_NAME  "ext_xtal"
@@ -138,11 +141,11 @@ static struct clk *mali_clock = NULL;
 #ifdef CONFIG_VIDEO_EXYNOS_FIMC_IS
 int mali_gpu_clk = 266;
 int mali_gpu_vol = 900000;
-char *mali_freq_table = "533 450 350 266 160";
+char *mali_freq_table = "640 600 533 450 350 266 160";
 #else
 int mali_gpu_clk = 266;
 int mali_gpu_vol = 900000;
-char *mali_freq_table = "533 450 350 266 160";
+char *mali_freq_table = "640 600 533 450 350 266 160";
 #endif
 
 static unsigned int GPU_MHZ	= 1000000;
