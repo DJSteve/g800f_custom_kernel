@@ -21,13 +21,8 @@
 #include <mach/regs-clock.h>
 #include <mach/cpufreq.h>
 #include <mach/sec_debug.h>
-#include <linux/sysfs.h>
-#include <linux/sysfs_helpers.h>
-
 
 #define	CPUFREQ_LEVEL_END	(L15 + 1)
-#define CPU_UV_MV_MAX 1500000
-#define CPU_UV_MV_MIN 600000
 
 int arm_lock;
 static int max_support_idx;
@@ -40,7 +35,6 @@ static struct clk *mout_apll;
 static struct clk *fout_apll;
 
 static unsigned int exynos3470_volt_table[CPUFREQ_LEVEL_END];
-static unsigned int exynos3470_default_volt_table[CPUFREQ_LEVEL_END];
 static unsigned int exynos3470_cpu_asv_abb[CPUFREQ_LEVEL_END];
 
 static struct cpufreq_frequency_table *exynos3470_freq_table;
@@ -48,8 +42,25 @@ static unsigned int (*clkdiv_cpu0_3470)[6];
 static unsigned int (*clkdiv_cpu1_3470)[2];
 static unsigned int *exynos3470_apll_pms_table;
 
-static struct cpufreq_frequency_table exynos3470_freq_table_rev[] = {
-        {L0, 1700 * 1000},
+/*static struct cpufreq_frequency_table exynos3470_freq_table_rev[] = {
+	{L0, 1400 * 1000},
+	{L1, 1300 * 1000},
+	{L2, 1200 * 1000},
+	{L3, 1100 * 1000},
+	{L4, 1000 * 1000},
+	{L5,  900 * 1000},
+	{L6,  800 * 1000},
+	{L7,  700 * 1000},
+	{L8,  600 * 1000},
+	{L9,  500 * 1000},
+	{L10, 400 * 1000},
+	{L11, 300 * 1000},
+	{L12, 200 * 1000},
+	{0, CPUFREQ_TABLE_END},
+};
+*/
+static struct cpufreq_frequency_table exynos3470_freq_table_rev2[] = {
+	{L0, 1700 * 1000},
         {L1, 1600 * 1000},
         {L2, 1500 * 1000},
 	{L3, 1400 * 1000},
@@ -68,73 +79,53 @@ static struct cpufreq_frequency_table exynos3470_freq_table_rev[] = {
 	{0, CPUFREQ_TABLE_END},
 };
 
-static struct cpufreq_frequency_table exynos3470_freq_table_rev2[] = {
-	{L0, 1700 * 1000},
-	{L1, 1600 * 1000},
-	{L2, 1500 * 1000},
-	{L3, 1400 * 1000},
-	{L4, 1300 * 1000},
-	{L5, 1200 * 1000},
-	{L6, 1100 * 1000},
-	{L7, 1000 * 1000},
-	{L8,  900 * 1000},
-	{L9,  800 * 1000},
-	{L10, 700 * 1000},
-	{L11, 600 * 1000},
-	{L12, 500 * 1000},
-	{L13, 400 * 1000},
-	{L14, 300 * 1000},
-	{L15, 200 * 1000},
-	{0, CPUFREQ_TABLE_END},
-};
-
 static struct cpufreq_clkdiv exynos3470_clkdiv_table[CPUFREQ_LEVEL_END];
 
-static unsigned int clkdiv_cpu0_3470_rev[CPUFREQ_LEVEL_END][6] = {
+//static unsigned int clkdiv_cpu0_3470_rev[CPUFREQ_LEVEL_END][6] = {
 	/*
 	 * Clock divider value for following
 	 * { DIVCORE, DIVCOREM,
 	 *		DIVATB, DIVPCLK_DBG, DIVAPLL, DIVCORE2 }
 	 */
 	/* ARM L0: 1400Mhz */
-	{ 0, 3, 5, 7, 7, 0 },
+//	{ 0, 3, 5, 7, 7, 0 },
 
 	/* ARM L1: 1300Mhz */
-	{ 0, 3, 5, 7, 7, 0 },
+//	{ 0, 3, 5, 7, 7, 0 },
 
 	/* ARM L2: 1200Mhz */
-	{ 0, 3, 5, 7, 7, 0 },
+//	{ 0, 3, 5, 7, 7, 0 },
 
 	/* ARM L3: 1100Mhz */
-	{ 0, 2, 4, 7, 7, 0 },
+//	{ 0, 2, 4, 7, 7, 0 },
 
 	/* ARM L4: 1000Mhz */
-	{ 0, 2, 4, 7, 7, 0 },
+//	{ 0, 2, 4, 7, 7, 0 },
 
 	/* ARM L5: 900MHz */
-	{ 0, 1, 4, 7, 7, 0 },
+//	{ 0, 1, 4, 7, 7, 0 },
 
 	/* ARM L6: 800MHz */
-	{ 0, 1, 3, 7, 2, 0 },
+//	{ 0, 1, 3, 7, 2, 0 },
 
 	/* ARM L7: 700MHz */
-	{ 0, 1, 3, 7, 1, 0 },
+//	{ 0, 1, 3, 7, 1, 0 },
 
 	/* ARM L8: 600MHz */
-	{ 0, 1, 3, 7, 1, 0 },
+//	{ 0, 1, 3, 7, 1, 0 },
 
 	/* ARM L9: 500MHz */
-	{ 0, 1, 3, 7, 1, 0 },
+//	{ 0, 1, 3, 7, 1, 0 },
 
 	/* ARM L10: 400MHz */
-	{ 0, 1, 3, 7, 1, 0 },
+//	{ 0, 1, 3, 7, 1, 0 },
 
 	/* ARM L11: 300MHz */
-	{ 0, 1, 3, 7, 1, 0 },
+//	{ 0, 1, 3, 7, 1, 0 },
 
 	/* ARM L12: 200MHz */
-	{ 0, 1, 3, 7, 1, 0 },
-};
+//	{ 0, 1, 3, 7, 1, 0 },
+//};
 
 static unsigned int clkdiv_cpu0_3470_rev2[CPUFREQ_LEVEL_END][6] = {
 	/*
@@ -142,14 +133,11 @@ static unsigned int clkdiv_cpu0_3470_rev2[CPUFREQ_LEVEL_END][6] = {
 	 * { DIVCORE, DIVCOREM,
 	 *		DIVATB, DIVPCLK_DBG, DIVAPLL, DIVCORE2 }
 	 */
-	/* ARM L2: 1700Mhz */
-	{ 0, 4, 7, 1, 7, 0 },
-
-        /* ARM L0: 1600Mhz */
+        /* ARM L0: 1700Mhz */
         { 0, 3, 6, 7, 7, 0 },
 
-        /* ARM L0: 1600Mhz */
-//      { 0, 3, 6, 7, 7, 0 },
+	/* ARM L0: 1600Mhz */
+        { 0, 3, 6, 7, 7, 0 },
 
 	/* ARM L0: 1500Mhz */
 	{ 0, 3, 6, 7, 7, 0 },
@@ -194,62 +182,61 @@ static unsigned int clkdiv_cpu0_3470_rev2[CPUFREQ_LEVEL_END][6] = {
 	{ 0, 1, 3, 7, 1, 0 },
 };
 
-static unsigned int clkdiv_cpu1_3470_rev[CPUFREQ_LEVEL_END][2] = {
+//static unsigned int clkdiv_cpu1_3470_rev[CPUFREQ_LEVEL_END][2] = {
 	/*
 	 *Clock divider value for following
 	 * { DIVCOPY, DIVHPM }
 	 */
 	/* ARM L0: 1400MHz */
-	{ 5, 0 },
+//	{ 5, 0 },
 
 	/* ARM L1: 1300MHz */
-	{ 5, 0 },
+//	{ 5, 0 },
 
 	/* ARM L2: 1200MHz */
-	{ 4, 0 },
+//	{ 4, 0 },
 
 	/* ARM L3: 1100MHz */
-	{ 4, 0 },
+//	{ 4, 0 },
 
 	/* ARM L4: 1000MHz */
-	{ 4, 0 },
+//	{ 4, 0 },
 
 	/* ARM L5: 900MHz */
-	{ 3, 0 },
+//	{ 3, 0 },
 
 	/* ARM L6: 800MHz */
-	{ 3, 0 },
+//	{ 3, 0 },
 
 	/* ARM L7: 700MHz */
-	{ 2, 0 },
+//	{ 2, 0 },
 
 	/* ARM L8: 600MHz */
-	{ 2, 0 },
+//	{ 2, 0 },
 
 	/* ARM L9: 500MHz */
-	{ 2, 0 },
+//	{ 2, 0 },
 
 	/* ARM L10: 400MHz */
-	{ 2, 0 },
+//	{ 2, 0 },
 
 	/* ARM L11: 300MHz */
-	{ 2, 0 },
+//	{ 2, 0 },
 
 	/* ARM L12: 200MHz */
-	{ 2, 0 },
-};
+//	{ 2, 0 },
+//};
 
 static unsigned int clkdiv_cpu1_3470_rev2[CPUFREQ_LEVEL_END][2] = {
 	/*
 	 *Clock divider value for following
 	 * { DIVCOPY, DIVHPM }
 	 */
-
-	/* ARM L2: 1700MHz */
-	{ 7, 0 },
+        /* ARM L0: 1700MHz */
+        { 6, 0 },
 
 	/* ARM L0: 1600MHz */
-        { 6, 0 },
+	{ 6, 0 },
 
 	/* ARM L0: 1500MHz */
 	{ 6, 0 },
@@ -294,53 +281,53 @@ static unsigned int clkdiv_cpu1_3470_rev2[CPUFREQ_LEVEL_END][2] = {
 	{ 2, 0 },
 };
 
-static unsigned int exynos3470_apll_pms_table_rev[CPUFREQ_LEVEL_END] = {
+//static unsigned int exynos3470_apll_pms_table_rev[CPUFREQ_LEVEL_END] = {
 	/* APLL FOUT L0: 1400MHz */
-	((175<<16)|(3<<8)|(0x0)),
+//	((175<<16)|(3<<8)|(0x0)),
 
 	/* APLL FOUT L1: 1300MHz */
-	((325<<16)|(6<<8)|(0x0)),
+//	((325<<16)|(6<<8)|(0x0)),
 
 	/* APLL FOUT L2: 1200MHz */
-	((200<<16)|(2<<8)|(0x1)),
+//	((200<<16)|(2<<8)|(0x1)),
 
 	/* APLL FOUT L3: 1100MHz */
-	((275<<16)|(3<<8)|(0x1)),
+//	((275<<16)|(3<<8)|(0x1)),
 
 	/* APLL FOUT L4: 1000MHz */
-	((250<<16)|(3<<8)|(0x1)),
+//	((250<<16)|(3<<8)|(0x1)),
 
 	/* APLL FOUT L5: 900MHz */
-	((150<<16)|(2<<8)|(0x1)),
+//	((150<<16)|(2<<8)|(0x1)),
 
 	/* APLL FOUT L6: 800MHz */
-	((200<<16)|(3<<8)|(0x1)),
+//	((200<<16)|(3<<8)|(0x1)),
 
 	/* APLL FOUT L7: 700MHz */
-	((175<<16)|(3<<8)|(0x1)),
+//	((175<<16)|(3<<8)|(0x1)),
 
 	/* APLL FOUT L8: 600MHz */
-	((200<<16)|(2<<8)|(0x2)),
+//	((200<<16)|(2<<8)|(0x2)),
 
 	/* APLL FOUT L9: 500MHz */
-	((250<<16)|(3<<8)|(0x2)),
+//	((250<<16)|(3<<8)|(0x2)),
 
 	/* APLL FOUT L10 400MHz */
-	((200<<16)|(3<<8)|(0x2)),
+//	((200<<16)|(3<<8)|(0x2)),
 
 	/* APLL FOUT L11: 300MHz */
-	((400<<16)|(4<<8)|(0x3)),
+//	((400<<16)|(4<<8)|(0x3)),
 
 	/* APLL FOUT L12: 200MHz */
-	((200<<16)|(3<<8)|(0x3)),
+//	((200<<16)|(3<<8)|(0x3)),
 
-};
+//};
 
 static unsigned int exynos3470_apll_pms_table_rev2[CPUFREQ_LEVEL_END] = {
-	/* APLL FOUT L2: 1704MHz */
-	((213<<16)|(3<<8)|(0x0)),
+	/* APLL FOUT L3: 1.7GHz */
+	((425<<16)|(6<<8)|(0x0)),
 
-        /* APLL FOUT L0: 1600MHz */
+	/* APLL FOUT L0: 1600MHz */
         ((200<<16)|(3<<8)|(0x0)),
 
 	/* APLL FOUT L0: 1500MHz */
@@ -388,17 +375,17 @@ static unsigned int exynos3470_apll_pms_table_rev2[CPUFREQ_LEVEL_END] = {
 };
 
 static int exynos3470_bus_table[CPUFREQ_LEVEL_END] = {
-	400000,		/* 1.7GHz */
-	400000,		/* 1.6GHz */
+        400000,         /* 1.7GHz */
+        400000,		/* 1.6GHz */
 	400000,         /* 1.5GHz */
- 	400000,         /* 1.4GHz */
-	267000,         /* 1.3GHz */
-	267000,         /* 1.2GHz */
-	267000,         /* 1.1GHz */
-	267000,         /* 1.0GHz */
-	200000,         /* 900MHz */
-	200000,         /* 800MHz */
-	200000,         /* 700MHz */
+	400000,         /* 1.4GHz */
+	400000,         /* 1.3GHz */
+	400000,         /* 1.2GHz */
+	400000,         /* 1.1GHz */
+	400000,         /* 1.0GHz */
+	267000,         /* 900MHz */
+	267000,         /* 800MHz */
+	267000,         /* 700MHz */
 	200000,         /* 600MHz */
 	200000,         /* 500MHz */
 	200000,         /* 400MHz */
@@ -427,9 +414,16 @@ static void exynos3470_set_clkdiv(unsigned int div_index)
 		cpu_relax();
 }
 
-static void exynos3470_set_apll(unsigned int index)
+static void exynos3470_set_apll(unsigned int new_index, unsigned int old_index)
 {
 	unsigned int tmp, pdiv;
+	unsigned int safe_idx;
+
+	/* 0. before change to MPLL, set div for MPLL output */
+		safe_idx = L6;
+
+	if ((new_index > safe_idx) && (old_index > safe_idx))
+		exynos3470_set_clkdiv(safe_idx);
 
 	/* 1. MUX_CORE_SEL = MPLL, ARMCLK uses MPLL for lock time */
 	clk_set_parent(moutcore, mout_mpll);
@@ -442,14 +436,14 @@ static void exynos3470_set_apll(unsigned int index)
 	} while (tmp != 0x2);
 
 	/* 2. Set APLL Lock time */
-	pdiv = ((exynos3470_apll_pms_table[index] >> 8) & 0x3f);
+	pdiv = ((exynos3470_apll_pms_table[new_index] >> 8) & 0x3f);
 
 	__raw_writel((pdiv * 270), EXYNOS4_APLL_LOCK);
 
 	/* 3. Change PLL PMS values */
 	tmp = __raw_readl(EXYNOS4_APLL_CON0);
 	tmp &= ~((0x3ff << 16) | (0x3f << 8) | (0x7 << 0));
-	tmp |= exynos3470_apll_pms_table[index];
+	tmp |= exynos3470_apll_pms_table[new_index];
 	__raw_writel(tmp, EXYNOS4_APLL_CON0);
 
 	/* 4. wait_lock_time */
@@ -466,6 +460,10 @@ static void exynos3470_set_apll(unsigned int index)
 		tmp = __raw_readl(EXYNOS4_CLKMUX_STATCPU);
 		tmp &= EXYNOS4_CLKMUX_STATCPU_MUXCORE_MASK;
 	} while (tmp != (0x1 << EXYNOS4_CLKSRC_CPU_MUXCORE_SHIFT));
+
+	/* 6. restore original div value */
+	if ((new_index > safe_idx) && (old_index > safe_idx))
+		exynos3470_set_clkdiv(new_index);
 }
 
 bool exynos3470_pms_change(unsigned int old_index, unsigned int new_index)
@@ -496,8 +494,6 @@ static void exynos3470_set_ema(unsigned int target_volt)
 static void exynos3470_set_frequency(unsigned int old_index,
 				  unsigned int new_index)
 {
-	unsigned int tmp;
-
 #ifdef CONFIG_SEC_DEBUG_AUXILIARY_LOG
 	sec_debug_aux_log(SEC_DEBUG_AUXLOG_CPU_BUS_CLOCK_CHANGE,
 			"old:%7d new:%7d (Freq)",
@@ -506,37 +502,17 @@ static void exynos3470_set_frequency(unsigned int old_index,
 #endif
 
 	if (old_index > new_index) {
-		if (!exynos3470_pms_change(old_index, new_index)) {
-			/* 1. Change the system clock divider values */
-			exynos3470_set_clkdiv(new_index);
-			/* 2. Change just s value in apll m,p,s value */
-			tmp = __raw_readl(EXYNOS4_APLL_CON0);
-			tmp &= ~(0x7 << 0);
-			tmp |= (exynos3470_apll_pms_table[new_index] & 0x7);
-			__raw_writel(tmp, EXYNOS4_APLL_CON0);
-		} else {
-			/* Clock Configuration Procedure */
-			/* 1. Change the system clock divider values */
-			exynos3470_set_clkdiv(new_index);
-			/* 2. Change the apll m,p,s value */
-			exynos3470_set_apll(new_index);
-		}
+		/* Clock Configuration Procedure */
+		/* 1. Change the system clock divider values */
+		exynos3470_set_clkdiv(new_index);
+		/* 2. Change the apll m,p,s value */
+		exynos3470_set_apll(new_index, old_index);
 	} else if (old_index < new_index) {
-		if (!exynos3470_pms_change(old_index, new_index)) {
-			/* 1. Change just s value in apll m,p,s value */
-			tmp = __raw_readl(EXYNOS4_APLL_CON0);
-			tmp &= ~(0x7 << 0);
-			tmp |= (exynos3470_apll_pms_table[new_index] & 0x7);
-			__raw_writel(tmp, EXYNOS4_APLL_CON0);
-			/* 2. Change the system clock divider values */
-			exynos3470_set_clkdiv(new_index);
-		} else {
-			/* Clock Configuration Procedure */
-			/* 1. Change the apll m,p,s value */
-			exynos3470_set_apll(new_index);
-			/* 2. Change the system clock divider values */
-			exynos3470_set_clkdiv(new_index);
-		}
+		/* Clock Configuration Procedure */
+		/* 1. Change the apll m,p,s value */
+		exynos3470_set_apll(new_index, old_index);
+		/* 2. Change the system clock divider values */
+		exynos3470_set_clkdiv(new_index);
 	}
 
 	clk_set_rate(fout_apll, exynos3470_freq_table[new_index].frequency*1000);
@@ -556,28 +532,15 @@ static int __init set_volt_table(void)
 	for (i = 0; i < CPUFREQ_LEVEL_END; i++) {
 		exynos3470_volt_table[i] = get_match_volt(ID_ARM, exynos3470_freq_table[i].frequency);
 
-		if (samsung_rev() >= EXYNOS3470_REV_2_0) {
 			if (arm_lock == 4) {
-				if (i >= L11) exynos3470_volt_table[i] = get_match_volt(ID_ARM, exynos3470_freq_table[L8].frequency);
+				if (i >= L8) exynos3470_volt_table[i] = get_match_volt(ID_ARM, exynos3470_freq_table[L8].frequency);
 			} else if (arm_lock == 5) {
-				if (i >= L10) exynos3470_volt_table[i] = get_match_volt(ID_ARM, exynos3470_freq_table[L7].frequency);
-			} else if (arm_lock == 6) {
-				if (i >= L9) exynos3470_volt_table[i] = get_match_volt(ID_ARM, exynos3470_freq_table[L6].frequency);
-			} else if (arm_lock == 7) {
-				if (i >= L8) exynos3470_volt_table[i] = get_match_volt(ID_ARM, exynos3470_freq_table[L5].frequency);
-			}
-		} else {
-			if (arm_lock == 4) {
 				if (i >= L7) exynos3470_volt_table[i] = get_match_volt(ID_ARM, exynos3470_freq_table[L7].frequency);
-			} else if (arm_lock == 5) {
-				if (i >= L6) exynos3470_volt_table[i] = get_match_volt(ID_ARM, exynos3470_freq_table[L6].frequency);
 			} else if (arm_lock == 6) {
-				if (i >= L5) exynos3470_volt_table[i] = get_match_volt(ID_ARM, exynos3470_freq_table[L5].frequency);
+				if (i >= L6) exynos3470_volt_table[i] = get_match_volt(ID_ARM, exynos3470_freq_table[L6].frequency);
 			} else if (arm_lock == 7) {
-				if (i >= L4) exynos3470_volt_table[i] = get_match_volt(ID_ARM, exynos3470_freq_table[L4].frequency);
+				if (i >= L5) exynos3470_volt_table[i] = get_match_volt(ID_ARM, exynos3470_freq_table[L5].frequency);
 			}
-
-		}
 		if (exynos3470_volt_table[i] == 0) {
 			pr_err("%s: invalid value\n", __func__);
 			return -EINVAL;
@@ -588,31 +551,17 @@ static int __init set_volt_table(void)
 		pr_info("CPUFREQ L%d : %d uV ABB : %d\n", i,
 					exynos3470_volt_table[i],
 					exynos3470_cpu_asv_abb[i]);
-		exynos3470_default_volt_table[i] = exynos3470_volt_table[i];
 	}
 
-//	if (samsung_rev() >= EXYNOS3470_REV_2_0) {
-		max_support_idx = L1;
-		min_support_idx = L15;
-//		exynos3470_freq_table[L12].frequency = CPUFREQ_ENTRY_INVALID;
-//		exynos3470_freq_table[L13].frequency = CPUFREQ_ENTRY_INVALID;
-		exynos3470_freq_table[L0].frequency = CPUFREQ_ENTRY_INVALID;
-//	} else {
-//		max_support_idx = L0;
-//		min_support_idx = L14;
-//	}
+		max_support_idx = L0;
+		min_support_idx = L11;
+		exynos3470_freq_table[L12].frequency = CPUFREQ_ENTRY_INVALID;
+		exynos3470_freq_table[L13].frequency = CPUFREQ_ENTRY_INVALID;
+		exynos3470_freq_table[L14].frequency = CPUFREQ_ENTRY_INVALID;
+		//exynos3470_freq_table[L0].frequency = CPUFREQ_ENTRY_INVALID;
 
 	return 0;
 }
-
-void exynos3470_restoreDefaultVolts(void)
-{
-	unsigned int i;
-	for (i = 0; i < CPUFREQ_LEVEL_END; i++) {
-		exynos3470_volt_table[i] = exynos3470_default_volt_table[i];
-	}
-}
-EXPORT_SYMBOL(exynos3470_restoreDefaultVolts);
 
 int __init exynos3470_cpufreq_init(struct exynos_dvfs_info *info)
 {
@@ -620,17 +569,10 @@ int __init exynos3470_cpufreq_init(struct exynos_dvfs_info *info)
 	unsigned int tmp;
 	unsigned long rate;
 
-//	if (samsung_rev() >= EXYNOS3470_REV_2_0) {
 		exynos3470_freq_table = exynos3470_freq_table_rev2;
 		clkdiv_cpu0_3470 = clkdiv_cpu0_3470_rev2;
 		clkdiv_cpu1_3470 = clkdiv_cpu1_3470_rev2;
 		exynos3470_apll_pms_table = exynos3470_apll_pms_table_rev2;
-//	} else {
-//		exynos3470_freq_table = exynos3470_freq_table_rev;
-//		clkdiv_cpu0_3470 = clkdiv_cpu0_3470_rev;
-//		clkdiv_cpu1_3470 = clkdiv_cpu1_3470_rev;
-//		exynos3470_apll_pms_table = exynos3470_apll_pms_table_rev;
-//	}
 
 	set_volt_table();
 
@@ -685,23 +627,6 @@ int __init exynos3470_cpufreq_init(struct exynos_dvfs_info *info)
 		exynos3470_clkdiv_table[i].clkdiv1 = tmp;
 	}
 
-	if (samsung_rev() >=  EXYNOS3470_REV_2_0) {
-		info->mpll_freq_khz = rate;
-		info->pm_lock_idx = L10;
-		info->pll_safe_idx = L10;
-		info->max_support_idx = max_support_idx;
-		info->min_support_idx = min_support_idx;
-		info->cpu_clk = cpu_clk;
-		info->volt_table = exynos3470_volt_table;
-		info->abb_table = exynos3470_cpu_asv_abb;
-		info->freq_table = exynos3470_freq_table;
-		info->set_freq = exynos3470_set_frequency;
-		info->need_apll_change = exynos3470_pms_change;
-		info->set_ema = exynos3470_set_ema;
-                info->bus_table = exynos3470_bus_table;
-		info->boot_cpu_min_qos = exynos3470_freq_table[L3].frequency;
-		info->boot_cpu_max_qos = exynos3470_freq_table[L3].frequency;
-	} else {
 		info->mpll_freq_khz = rate;
 		info->pm_lock_idx = L8;
 		info->pll_safe_idx = L8;
@@ -713,10 +638,10 @@ int __init exynos3470_cpufreq_init(struct exynos_dvfs_info *info)
 		info->freq_table = exynos3470_freq_table;
 		info->set_freq = exynos3470_set_frequency;
 		info->need_apll_change = exynos3470_pms_change;
+		info->set_ema = exynos3470_set_ema;
 		info->bus_table = exynos3470_bus_table;
-                info->boot_cpu_min_qos = exynos3470_freq_table[L3].frequency;
-                info->boot_cpu_max_qos = exynos3470_freq_table[L3].frequency;
-	}
+		info->boot_cpu_min_qos = exynos3470_freq_table[L6].frequency;
+		info->boot_cpu_max_qos = exynos3470_freq_table[L1].frequency;
 
 return 0;
 
@@ -731,110 +656,3 @@ err_moutcore:
 	return -EINVAL;
 }
 EXPORT_SYMBOL(exynos3470_cpufreq_init);
-
-
-
-ssize_t show_UV_uV_table(struct cpufreq_policy *policy, char *buf) {
-	int i, len = 0;
-	if (buf)
-	{
-		for (i = max_support_idx; i<=min_support_idx; i++)
-		{
-			if(exynos3470_freq_table[i].frequency==CPUFREQ_ENTRY_INVALID) continue;
-			len += sprintf(buf + len, "%d %d \n",
-				exynos3470_freq_table[i].frequency/1000,
-				exynos3470_volt_table[i]);
-		}
-	}
-	return len;
-}
-
-ssize_t show_UV_mV_table(struct cpufreq_policy *policy, char *buf) {
-	int i, len = 0;
-	if (buf)
-	{
-		for (i = max_support_idx; i<=min_support_idx; i++)
-		{
-			if(exynos3470_freq_table[i].frequency==CPUFREQ_ENTRY_INVALID) continue;
-			len += sprintf(buf + len, "%dmhz: %d mV\n", 
-				exynos3470_freq_table[i].frequency/1000,
-				((exynos3470_volt_table[i] % 1000) + exynos3470_volt_table[i])/1000);
-		}
-	}
-	return len;
-}
-
-ssize_t store_UV_uV_table(struct cpufreq_policy *policy, 
-				 const char *buf, size_t count) {
-
-	int i, tokens, top_offset, invalid_offset;
-	int t[CPUFREQ_LEVEL_END];
-
-	top_offset = 0;
-	invalid_offset = 0;
-
-	if((tokens = read_into((int*)&t, CPUFREQ_LEVEL_END, buf, count)) < 0)
-		return -EINVAL;
-
-	if(tokens != CPUFREQ_LEVEL_END) {
-		top_offset = CPUFREQ_LEVEL_END - tokens;
-	}
-
-	for (i = 0 + top_offset; i < CPUFREQ_LEVEL_END; i++) {
-		if (t[i] > CPU_UV_MV_MAX) 
-			t[i] = CPU_UV_MV_MAX;
-		else if (t[i] < CPU_UV_MV_MIN) 
-			t[i] = CPU_UV_MV_MIN;
-
-		while(exynos3470_freq_table[i+invalid_offset].frequency==CPUFREQ_ENTRY_INVALID)
-			++invalid_offset;
-
-		exynos3470_volt_table[i+invalid_offset] = t[i];
-	}
-
-	return count;
-}
-
-ssize_t store_UV_mV_table(struct cpufreq_policy *policy, 
-				 const char *buf, size_t count) {
-
-	int i, tokens, top_offset, invalid_offset;
-	int t[CPUFREQ_LEVEL_END];
-
-	top_offset = 0;
-	invalid_offset = 0;
-
-	if((tokens = read_into((int*)&t, CPUFREQ_LEVEL_END, buf, count)) < 0)
-		return -EINVAL;
-
-	if(tokens != CPUFREQ_LEVEL_END) {
-		top_offset = CPUFREQ_LEVEL_END - tokens;
-	}
-
-	for (i = 0 + top_offset; i < CPUFREQ_LEVEL_END; i++) {
-		int rest = 0;
-
-		t[i] *= 1000;
-
-		if((rest = t[i] % 12500) != 0){
-			if(rest > 6250)
-				t[i] += rest;
-			else
-				t[i] -= rest;
-		}
-
-		if (t[i] > CPU_UV_MV_MAX) 
-			t[i] = CPU_UV_MV_MAX;
-		else if (t[i] < CPU_UV_MV_MIN) 
-			t[i] = CPU_UV_MV_MIN;
-
-		while(exynos3470_freq_table[i+invalid_offset].frequency==CPUFREQ_ENTRY_INVALID)
-			++invalid_offset;
-
-		exynos3470_volt_table[i+invalid_offset] = t[i];
-	}
-
-	return count;
-}
-
-
