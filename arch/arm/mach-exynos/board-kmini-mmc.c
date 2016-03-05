@@ -163,7 +163,7 @@ static struct dw_mci_board smdk4270_dwmci0_pdata __initdata = {
 				  DW_MMC_QUIRK_FIXED_VOLTAGE |
 				  DW_MMC_QUIRK_USE_FINE_TUNING |
 				  DW_MMC_QUIRK_RETRY_CRC_ERROR,
-	.bus_hz			= 200 * 1000 * 1000,
+	.bus_hz			= 400 * 1000 * 1000,
 	.caps			= MMC_CAP_CMD23 | MMC_CAP_8_BIT_DATA |
 				  MMC_CAP_UHS_DDR50 | MMC_CAP_UHS_SDR104 | MMC_CAP_1_8V_DDR |
 				  MMC_CAP_ERASE,
@@ -374,7 +374,7 @@ static struct dw_mci_board smdk4270_dwmci2_pdata __initdata = {
 	.quirks			= DW_MCI_QUIRK_HIGHSPEED |
 				  DW_MMC_QUIRK_NO_VOLSW_INT |
 				  DW_MMC_QUIRK_USE_FINE_TUNING,
-	.bus_hz			= 200 * 1000 * 1000,
+	.bus_hz			= 400 * 1000 * 1000,
 	.caps			= MMC_CAP_4_BIT_DATA |
 				  MMC_CAP_SD_HIGHSPEED |
 				  MMC_CAP_MMC_HIGHSPEED |
